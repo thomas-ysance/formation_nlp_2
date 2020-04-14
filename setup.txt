@@ -1,0 +1,17 @@
+#!#  As of 14 april 2020  #!#
+
+For Windows or Linux
+pip3 install torch==1.4.0+cpu torchvision==0.5.0+cpu -f https://download.pytorch.org/whl/torch_stable.html
+
+For Max
+pip3 install torch torchvision
+
+For all
+pip3 install pandas
+pip3 install scipy
+pip3 install sklearn
+pip3 install tensorflow
+pip3 install tensorboardx
+pip3 install transformers
+pip3 install simpletransformers
+pip3 install wandb
