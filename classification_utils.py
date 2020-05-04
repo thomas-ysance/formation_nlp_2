@@ -264,7 +264,8 @@ class SequenceClassificationModel:
         global_step = 0
         tr_loss, logging_loss = 0.0, 0.0
         model.zero_grad()
-        train_iterator = trange(int(args["num_train_epochs"]), desc="Epoch", disable=args['silent'])
+        train_iterator = trange(int(args["num_train_epochs"]), desc="Epoch", disable=args['silent'],
+                                position=0, leave=True)
         epoch_number = 0
         if args['evaluate_during_training']:
             extra_metrics = {key: [] for key in kwargs}
@@ -312,7 +313,11 @@ class SequenceClassificationModel:
         model.train()
         for _ in train_iterator:
             # epoch_iterator = tqdm(train_dataloader, desc="Iteration")
-            for step, batch in enumerate(tqdm(train_dataloader, desc="Current iteration", disable=args['silent'])):
+            for step, batch in enumerate(tqdm(train_dataloader,
+                                              desc="Current iteration",
+                                              disable=args['silent'],
+                                              position=0,
+                                              leave=True)):
                 batch = tuple(t.to(device) for t in batch)
 
                 inputs = self._get_inputs_dict(batch)
@@ -326,6 +331,7 @@ class SequenceClassificationModel:
                 current_loss = loss.item()
 
                 if show_running_loss:
+                    # tqdm.write("\rRunning loss: %f" % loss, end="")
                     print("\rRunning loss: %f" % loss, end="")
 
                 if args["gradient_accumulation_steps"] > 1:

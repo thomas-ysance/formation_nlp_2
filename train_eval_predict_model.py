@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-import os
-import pandas as pd
+
 import numpy as np
-from scipy.special import softmax
 from sklearn.model_selection import StratifiedKFold, StratifiedShuffleSplit, train_test_split
 from sklearn.metrics import confusion_matrix, classification_report, \
     mean_absolute_error, mean_squared_error, median_absolute_error
@@ -13,9 +11,9 @@ from torch_utils import print_model
 
 import pandas as pd
 from os import listdir
-from os.path import isfile, join
 
 
+# Lecture des fichiers
 def splitting(text):
     # print(text)
     only_text = text.split(",", 1)[1]
@@ -40,13 +38,20 @@ all_tweets = pd.concat(df_list)
 all_tweets['polarity'] = all_tweets['polarity'].astype('int')
 all_tweets['polarity'] = all_tweets['polarity'].replace(4, 1)
 
+# Reduce number of tweets for quicker results
+all_tweets = pd.concat([all_tweets[all_tweets['polarity'] == 0].iloc[:1000],
+                        all_tweets[all_tweets['polarity'] == 1].iloc[:1000]])
+
+print(all_tweets.shape)
+print(all_tweets.describe())
+
 pd.set_option('display.max_rows', 500)
 pd.set_option('display.max_columns', 500)
 pd.set_option('display.width', 1000)
 
-
+# Train & eval
 train = True
-evaluate = True
+evaluate = False
 predict = False
 
 freeze_bert_encoder = True
@@ -55,7 +60,7 @@ model_type = 'camembert'
 model_name = 'camembert-base'
 
 model_args = {'output_dir': 'output_model_1/', 'reprocess_input_data': True,
-              'overwrite_output_dir': True, 'num_train_epochs': 20, 'learning_rate': 8e-5,
+              'overwrite_output_dir': True, 'num_train_epochs': 2, 'learning_rate': 8e-5,
               'logging_steps': 50, 'evaluate_during_training': True, 'save_steps': 2000}
 
 
@@ -104,9 +109,9 @@ if freeze_bert_encoder:
     if model_type == 'camembert':
         for param in model.model.roberta.parameters():
             param.requires_grad = False
-    # elif model_type == 'flaubert':
-    #     for param in model.model.roberta.parameters():
-    #         param.requires_grad = False
+    elif model_type == 'flaubert':
+        for param in model.model.transformer.parameters():
+            param.requires_grad = False
     else:
         raise Exception('Cant freeze Bert encoder of %s' % model_type)
 
